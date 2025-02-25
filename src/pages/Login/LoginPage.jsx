@@ -4,6 +4,7 @@ import Form from "../../components/Form";
 import Input from "../../components/Input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   const UserSchema = z
@@ -32,46 +33,40 @@ const LoginPage = () => {
     resolver: zodResolver(UserSchema),
   });
 
-  const onSubmit = (data) => {
+  const handleLogin = (data) => {
     console.log(data);
   };
+
   return (
-    <div className="login__page-wrapper">
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <Input
-          {...register("name")}
-          id="name-input"
-          label="Enter name"
-          placeholder="Kurt smith"
-          error={errors.name?.message}
-        />
-        <Input
-          {...register("email")}
-          id="email-input"
-          label="Enter Email"
-          type="email"
-          placeholder="example@gmail.com"
-          error={errors.email?.message}
-        />
-        <Input
-          {...register("password")}
-          id="password-input"
-          label="Password"
-          type="password"
-          placeholder="********"
-          error={errors.password?.message}
-        />
-        <Input
-          {...register("confirmPassword")}
-          id="confirm-password-input"
-          label="Confirm Password"
-          type="password"
-          placeholder="********"
-          error={errors.confirmPassword?.message}
-        />
-        <Button disabled={isSubmitting}>Login</Button>
-      </Form>
-    </div>
+    <>
+      <div className="login__page-wrapper">
+        <Form page="Login" onSubmit={handleSubmit(handleLogin)}>
+          <Input
+            {...register("email")}
+            id="email-input"
+            label="Enter Email"
+            type="email"
+            placeholder="example@gmail.com"
+            error={errors.email?.message}
+          />
+          <Input
+            {...register("password")}
+            id="password-input"
+            label="Password"
+            type="password"
+            placeholder="********"
+            error={errors.password?.message}
+          />
+          <div className="options-div">
+            <Button disabled={isSubmitting}>Login</Button>
+            <span className="divider">Or</span>
+            <Link className="singup-link" to="signup">
+              singup
+            </Link>
+          </div>
+        </Form>
+      </div>
+    </>
   );
 };
 
