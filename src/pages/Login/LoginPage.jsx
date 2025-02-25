@@ -4,26 +4,21 @@ import Form from "../../components/Form";
 import Input from "../../components/Input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useState } from "react";
+import { useContext } from "react";
+import { UserContext } from "../../Context/UserContext";
 
 const LoginPage = () => {
-  const UserSchema = z
-    .object({
-      name: z
-        .string()
-        .min(3, { message: "name must have at least 3 characters" }),
-      email: z.string().email({ message: "email is required" }),
-      password: z.string().min(8, {
-        message: "password must have at least 8 characters",
-      }),
-      confirmPassword: z.string().min(8, {
-        message: "password must have at least 8 characters",
-      }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords do not match",
-      path: ["confirmPassword"], // Show error on confirmPassword field
-    });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authToken, setAuthToken] = useState(null);
+  const UserSchema = z.object({
+    email: z.string().email({ message: "email is required" }),
+    password: z.string().min(8, {
+      message: "password must have at least 8 characters",
+    }),
+  });
   const {
     register,
     handleSubmit,
@@ -33,39 +28,66 @@ const LoginPage = () => {
     resolver: zodResolver(UserSchema),
   });
 
-  const handleLogin = (data) => {
-    console.log(data);
+  const { isAuthenticated, setIsAuthenticated } = useContext(UserContext);
+
+  const handleLogin = () => {
+    console.log("handle function");
+    try {
+      console.log(email, password);
+
+      fetch(
+        `https://x8ki-letl-twmt.n7.xano.io/api:M18lWu4n/auth/login?email=${email}&password=${password}`,
+        {
+          method: "POST",
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setAuthToken(data.authToken);
+          setIsAuthenticated(() => true);
+        });
+      // isAuthenticated && Navigate("/signup");
+      console.log(authToken);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <>
-      <div className="login__page-wrapper">
-        <Form page="Login" onSubmit={handleSubmit(handleLogin)}>
-          <Input
-            {...register("email")}
-            id="email-input"
-            label="Enter Email"
-            type="email"
-            placeholder="example@gmail.com"
-            error={errors.email?.message}
-          />
-          <Input
-            {...register("password")}
-            id="password-input"
-            label="Password"
-            type="password"
-            placeholder="********"
-            error={errors.password?.message}
-          />
-          <div className="options-div">
-            <Button disabled={isSubmitting}>Login</Button>
-            <span className="divider">Or</span>
-            <Link className="singup-link" to="signup">
-              singup
-            </Link>
-          </div>
-        </Form>
-      </div>
+      {isAuthenticated ? (
+        Navigate("/home")
+      ) : (
+        <div className="login__page-wrapper">
+          <Form page="Login" onSubmit={handleSubmit(handleLogin)}>
+            <Input
+              {...register("email")}
+              id="email-input"
+              label="Enter Email"
+              type="email"
+              placeholder="example@gmail.com"
+              error={errors.email?.message}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              {...register("password")}
+              id="password-input"
+              label="Password"
+              type="password"
+              placeholder="********"
+              error={errors.password?.message}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="options-div">
+              <Button disabled={isSubmitting}>Login</Button>
+              <span className="divider">Or</span>
+              <Link className="singup-link" to="signup">
+                singup
+              </Link>
+            </div>
+          </Form>
+        </div>
+      )}
     </>
   );
 };
