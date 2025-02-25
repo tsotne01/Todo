@@ -1,7 +1,8 @@
 
-const Button = () => {
+// eslint-disable-next-line react/prop-types
+const Button = ({children}) => {
   return (
-    <button>Button</button>
+    <button className="button" type="submit">{children}</button>
   )
 }
 
