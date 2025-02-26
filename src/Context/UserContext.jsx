@@ -5,9 +5,21 @@ export const UserContext = createContext();
 
 // eslint-disable-next-line react/prop-types
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState();
+  const [userId, setUserId] = useState();
   const [authToken, setAuthToken] = useState("");
+
   useEffect(() => {
+    if (authToken) {
+      try {
+        fetch("https://x8ki-letl-twmt.n7.xano.io/api:M18lWu4n/auth/me", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        })
+          .then((res) => res.json())
+          .then((data) => setUserId(data.id));
+      } catch (err) {
+        console.error(err);
+      }
+    }
     const token = localStorage.getItem("authToken");
     if (token) {
       setAuthToken(token);
@@ -16,20 +28,8 @@ export const UserProvider = ({ children }) => {
     }
   }, [authToken]);
 
-  useEffect(() => {
-    if (authToken) {
-      try {
-        fetch("https://x8ki-letl-twmt.n7.xano.io/api:M18lWu4n/auth/me", {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }).then((res)=>console.log(res.status));
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }, [authToken]);
-
   return (
-    <UserContext.Provider value={{ authToken, setAuthToken, user, setUser }}>
+    <UserContext.Provider value={{ authToken, setAuthToken, userId, setUserId }}>
       {children}
     </UserContext.Provider>
   );

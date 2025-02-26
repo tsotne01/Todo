@@ -72,3 +72,26 @@
   text-align: center;
   width: 100%;
 }
+
+.auth-failed{
+  color: red;
+  font-size: 20px;
+}
+
+.error-smthng-went-wrong{
+  color: red;
+  font-size: 60px;
+}
+
+.logout-button{
+  padding: 1em 2em;
+  background-color: blueviolet;
+  color: white;
+  border-radius: 5px;
+}
+
+.loading-text{
+  color: rgb(18, 41, 66);
+  font-weight: bold;
+  font-size: 46px;
+}

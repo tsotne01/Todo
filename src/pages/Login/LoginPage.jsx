@@ -11,6 +11,7 @@ import { UserContext } from "../../Context/UserContext";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [authFailed, setAuthFailed] = useState(false);
   const navigate = useNavigate();
 
   const UserSchema = z.object({
@@ -29,7 +30,7 @@ const LoginPage = () => {
     resolver: zodResolver(UserSchema),
   });
 
-  const { authToken, setAuthToken, setUser } = useContext(UserContext);
+  const { authToken, setAuthToken } = useContext(UserContext);
 
   const handleLogin = () => {
     console.log("handle function");
@@ -45,8 +46,11 @@ const LoginPage = () => {
         .then((response) => response.json())
         .then((data) => {
           setAuthToken(() => data.authToken);
-          setUser("user");
         });
+      if (authToken == undefined) {
+        setAuthFailed(() => true);
+        setAuthToken(() => "");
+      }
       console.log(authToken);
     } catch (error) {
       console.error(error);
@@ -56,41 +60,44 @@ const LoginPage = () => {
     if (authToken) {
       navigate("home", { replace: true });
     }
-  }, [authToken,navigate]);
+  }, [authToken, navigate]);
 
   return (
     <>
       {" "}
       {!authToken && (
-      <div className="login__page-wrapper">
-        <Form page="Login" onSubmit={handleSubmit(handleLogin)}>
-          <Input
-            {...register("email")}
-            id="email-input"
-            label="Enter Email"
-            type="email"
-            placeholder="example@gmail.com"
-            error={errors.email?.message}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            {...register("password")}
-            id="password-input"
-            label="Password"
-            type="password"
-            placeholder="********"
-            error={errors.password?.message}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <div className="options-div">
-            <Button disabled={isSubmitting}>Login</Button>
-            <span className="divider">Or</span>
-            <Link className="singup-link" to="signup">
-              singup
-            </Link>
-          </div>
-        </Form>
-      </div>
+        <div className="login__page-wrapper">
+          <Form page="Login" onSubmit={handleSubmit(handleLogin)}>
+            <Input
+              {...register("email")}
+              id="email-input"
+              label="Enter Email"
+              type="email"
+              placeholder="example@gmail.com"
+              error={errors.email?.message}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              {...register("password")}
+              id="password-input"
+              label="Password"
+              type="password"
+              placeholder="********"
+              error={errors.password?.message}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="options-div">
+              <Button type="submit" disabled={isSubmitting}>
+                Login
+              </Button>
+              <span className="divider">Or</span>
+              <Link className="singup-link" to="signup">
+                singup
+              </Link>
+            </div>
+          </Form>
+          {authFailed && <p className="auth-failed">Authorization failed</p>}
+        </div>
       )}
     </>
   );
