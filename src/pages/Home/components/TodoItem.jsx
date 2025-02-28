@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import RemoveTodo from "../../../RemoveTodo";
+import { TodosContext } from "../../../Context/TodoContext";
 
 // eslint-disable-next-line react/prop-types
 const TodoItem = ({ todoItem }) => {
   // eslint-disable-next-line react/prop-types
   const { id, title, description, completed } = todoItem;
+  const { todos, setTodos } = useContext(TodosContext);
   const [checkboxStatus, setCheckboxStatus] = useState(completed);
   const handleRemoveTodo = () => {
+    RemoveTodo(id).then((res) => {
+      console.log(res);
+      setTodos((prev) => prev.filter((item) => item.id !== id));
+    });
     console.log("remove todoo");
   };
   const handleStatusChange = () => {

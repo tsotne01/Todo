@@ -5,11 +5,20 @@ import { useNavigate } from "react-router-dom";
 import { RequestTodos } from "../../RequestTodos";
 import Todo from "./components/Todo";
 import TodoItem from "./components/TodoItem";
+import Form from "../../components/Form";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import { useForm } from "react-hook-form";
 
 const HomePage = () => {
   const { authToken, setAuthToken, userId } = useContext(UserContext);
-  const { todos } = useContext(TodosContext);
+  const { todos, setTodos } = useContext(TodosContext);
   const navigate = useNavigate();
+  const {
+    handleSubmit,
+    register,
+    formState: { isSubmitting, errors },
+  } = useForm({ mode: "all" });
 
   const handleLogout = () => {
     localStorage.setItem("authToken", "");
@@ -20,7 +29,12 @@ const HomePage = () => {
       navigate("/");
     }
   }, [authToken, navigate]);
-  RequestTodos();
+  useEffect(() => {
+    RequestTodos().then((res) => setTodos(res));
+  }, []);
+  const onSubmit = (data) => {
+    console.log(data);
+  };
 
   return (
     <>
@@ -30,6 +44,33 @@ const HomePage = () => {
           Log out
         </button>
       </header>
+      <Form onSubmit={handleSubmit(onSubmit)} className="add-todo-form">
+        <legend>Add Todo</legend>
+        <Input
+          {...register("title", {
+            required: "title is requred",
+          })}
+          label="Title:"
+          placeholder="write todo title"
+          id="todotitle"
+          type="text"
+        />
+        {errors?.title && <p className="error"> {errors.title?.message}</p>}
+        <Input
+          {...register("description", {
+            required: "description is requred",
+          })}
+          label="Description:"
+          placeholder="Write Todo Description"
+          id="tododescription"
+          type="text"
+        />
+        {errors?.description && (
+          <p className="error"> {errors.description?.message}</p>
+        )}
+
+        <Button disabled={isSubmitting}>Add Todo</Button>
+      </Form>
       <main>
         <Todo>
           {todos.length &&
