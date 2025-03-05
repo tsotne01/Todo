@@ -3,6 +3,7 @@ import { TodosContext } from "../../Context/TodoContext";
 import { UserContext } from "../../Context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { RequestTodos } from "../../RequestTodos";
+import { postTodo } from "../../postTodo";
 import Todo from "./components/Todo";
 import TodoItem from "./components/TodoItem";
 import Form from "../../components/Form";
@@ -14,6 +15,7 @@ const HomePage = () => {
   const { authToken, setAuthToken, userId } = useContext(UserContext);
   const { todos, setTodos } = useContext(TodosContext);
   const navigate = useNavigate();
+  
   const {
     handleSubmit,
     register,
@@ -24,16 +26,21 @@ const HomePage = () => {
     localStorage.setItem("authToken", "");
     setAuthToken("");
   };
+
   useEffect(() => {
     if (authToken == "") {
       navigate("/");
     }
   }, [authToken, navigate]);
+
   useEffect(() => {
     RequestTodos().then((res) => setTodos(res));
-  }, []);
+  }, [setTodos]);
   const onSubmit = (data) => {
-    console.log(data);
+    postTodo(data, userId).then(() => {
+      setTodos((prev) => [...prev, data]);
+    });
+    console.log(todos);
   };
 
   return (
@@ -78,8 +85,8 @@ const HomePage = () => {
               .filter((item) => {
                 return item.user_id == userId;
               })
-              .map((todoItem) => {
-                return <TodoItem key={todoItem.id} todoItem={todoItem} />;
+              .map((todoItem,i) => {
+                return <TodoItem key={todoItem.id || i} todoItem={todoItem} />;
               })}
           {!todos.length && <span className="loading-text">Loading....</span>}
         </Todo>

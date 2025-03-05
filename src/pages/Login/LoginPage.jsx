@@ -45,6 +45,7 @@ const LoginPage = () => {
       )
         .then((response) => response.json())
         .then((data) => {
+          console.log(data);
           setAuthToken(() => data.authToken);
         });
       if (authToken == undefined) {

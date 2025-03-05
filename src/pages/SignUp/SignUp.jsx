@@ -4,7 +4,9 @@ import Form from "../../components/Form";
 import Input from "../../components/Input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../../Context/UserContext";
 
 const SignUp = () => {
   const UserSchema = z
@@ -32,12 +34,34 @@ const SignUp = () => {
     mode: "all",
     resolver: zodResolver(UserSchema),
   });
-
+  const { authToken, setAuthToken } = useContext(UserContext);
+  const navigator = useNavigate()
+  
   const handleRegister = (data) => {
-    console.log(data);
+    const { name, email, password } = data;
+
+    try {
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:M18lWu4n/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      }).then((response) => response.json())
+      .then((data) => {
+        setAuthToken(() => data.authToken);
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div className="login__page-wrapper">
+      {authToken && navigator("/home")}
       <Form page="signup" onSubmit={handleSubmit(handleRegister)}>
         <Input
           {...register("name")}
@@ -71,12 +95,12 @@ const SignUp = () => {
           error={errors.confirmPassword?.message}
         />
         <div className="options-div">
-            <Button disabled={isSubmitting}>Sign up</Button>
-            <span className="divider">Or</span>
-            <Link className="singup-link" to="/">
-              login
-            </Link>
-          </div>
+          <Button disabled={isSubmitting}>Sign up</Button>
+          <span className="divider">Or</span>
+          <Link className="singup-link" to="/">
+            login
+          </Link>
+        </div>
       </Form>
     </div>
   );
